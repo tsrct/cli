@@ -5,7 +5,7 @@ import 'package:args/command_runner.dart';
 
 class KeyInitCommand extends Command {
   @override
-  String get description => "initialize the keys that will be used for the organization";
+  String get description => "add a new key for the organization after initialization has already occurred";
 
   @override
   String get name => "init";
@@ -19,8 +19,8 @@ class KeyInitCommand extends Command {
     argParser.addOption("key-host",
       mandatory: true,
       allowedHelp: {
-        "local": "the key is located on the local file system; it will not have passphrase protection",
-//        "gcp": "the key is located in gcp cloud kms and the fully qualified location name is available"
+        // "local": "the key is located on the local file system; it will not have passphrase protection",
+       "gcp": "the key is located in gcp cloud kms and the fully qualified location name is available"
       },
       help: "the hosted location of the key, whether local or a specific cloud kms such as gcp"
     );

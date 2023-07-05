@@ -181,7 +181,7 @@ class DomainInitCommand extends Command {
       "slf": sig,
       "sha": sha,
       "typ": "syn",
-      "cid": cid,
+      "cid": "$uid.$cid",
       "seq": 0,
       "dsc": "tsrct://org/syn/$dom",
       "nce": TsrctCommonOps.getNonce(),
@@ -289,7 +289,7 @@ class DomainInitCommand extends Command {
       "cid": ackHeader["cid"],
       "seq": 2,
       "ref": refArray,
-      "dsc": "tsrct://org/reg",
+      "dsc": "tsrct://org/reg/$uid",
       "nce": TsrctCommonOps.getNonce(),
     };
 

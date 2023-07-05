@@ -7,6 +7,7 @@ import 'package:tsrct_cli/cmd_domain_dns.dart';
 import 'package:tsrct_cli/cmd_domain_init.dart';
 import 'package:tsrct_cli/cmd_key_init.dart';
 import 'package:tsrct_cli/cmd_tdoc_create.dart';
+import 'package:tsrct_cli/cmd_uid_available.dart';
 import 'package:tsrct_cli/utils.dart';
 import 'package:tsrct_dart_lib/tsrct_dart_lib.dart';
 
@@ -15,6 +16,7 @@ void main(List<String> arguments) {
   print("api endpoint is: ${tsrctApi.apiEndpoint}");
   var runner = CommandRunner("tsrct", "command line tool for tsrct")
     ..addCommand(DomainCommand())
+    ..addCommand(UidCommand())
     ..run(arguments).catchError((error) {
       if (error is! UsageException) throw error;
       print(error);
@@ -59,5 +61,18 @@ class TdocCommand extends Command {
   TdocCommand() {
     addSubcommand(TdocCreateCommand());
   }
+}
+
+class UidCommand extends Command {
+  @override
+  String get description => "uid related commands";
+
+  @override
+  String get name => "uid";
+
+  UidCommand() {
+    addSubcommand(UidAvailableCommand());
+  }
+
 }
 

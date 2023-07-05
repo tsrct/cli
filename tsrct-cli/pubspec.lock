@@ -382,10 +382,10 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: d8e19b4a10beff0db6bfc11b5f5619fa5364b8f7
+      resolved-ref: "7f0670d6b9a22fba625f8ae9bf619649da4f6255"
       url: "git@github.com:tsrct/tsrct-dart-lib.git"
     source: git
-    version: "1.0.1"
+    version: "1.0.2"
   typed_data:
     dependency: transitive
     description:

@@ -14,10 +14,10 @@ dev_dependencies:
   lints: ^2.0.0
   test: ^1.21.0
 dependencies:
-  args: ^2.4.0
-  googleapis: ^10.1.0
-  googleapis_auth: ^1.4.0
-  pointycastle: ^3.7.2
+  args: ^2.4.2
+  googleapis: ^11.2.0
+  googleapis_auth: ^1.4.1
+  pointycastle: ^3.7.3
   tsrct_dart_lib:
     git: git@github.com:tsrct/tsrct-dart-lib.git
 
