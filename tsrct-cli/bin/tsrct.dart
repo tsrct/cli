@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:tsrct_cli/cmd_domain_ddx.dart';
 import 'package:tsrct_cli/cmd_domain_dns.dart';
 import 'package:tsrct_cli/cmd_domain_init.dart';
 import 'package:tsrct_cli/cmd_key_init.dart';
@@ -17,13 +18,13 @@ void main(List<String> arguments) {
   var runner = CommandRunner("tsrct", "command line tool for tsrct")
     ..addCommand(DomainCommand())
     ..addCommand(UidCommand())
+    ..addCommand(TdocCommand())
     ..run(arguments).catchError((error) {
       if (error is! UsageException) throw error;
       print(error);
       exit(64); // Exit code 64 indicates a usage error.
     });
 }
-
 
 /// domain command -- domain related commands
 class DomainCommand extends Command {
@@ -36,6 +37,7 @@ class DomainCommand extends Command {
   DomainCommand() {
     addSubcommand(DomainDnsCommand());
     addSubcommand(DomainInitCommand());
+    addSubcommand(DomainDdxCommand());
   }
 }
 
@@ -73,6 +75,4 @@ class UidCommand extends Command {
   UidCommand() {
     addSubcommand(UidAvailableCommand());
   }
-
 }
-

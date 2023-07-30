@@ -10,40 +10,48 @@ import 'package:tsrct_dart_lib/tsrct_dart_lib.dart';
 
 class DomainInitCommand extends Command {
   @override
-  String get description => "initialize the domain for an org, which will essentially provision the org onto tsrct";
+  String get description =>
+      "initialize the domain for an org, which will essentially provision the org onto tsrct";
 
   @override
   String get name => "init";
 
   DomainInitCommand() {
-    argParser.addOption("dom",
+    argParser.addOption(
+      "dom",
       mandatory: true,
       help: "domain name to initialize",
     );
-    argParser.addOption("key-set-id",
+    argParser.addOption(
+      "key-set-id",
       mandatory: true,
-      help: "the name to give the public key set that will be used as part of initialization; it must match the name of the created key; will be suffixed with -enc and -sig for the appropriate keys",
+      help:
+          "the name to give the public key set that will be used as part of initialization; it must match the name of the created key; will be suffixed with -enc and -sig for the appropriate keys",
     );
-    argParser.addOption("uid",
+    argParser.addOption(
+      "uid",
       mandatory: true,
-      help: "the 25 digit globally unique uid selected for this domain\nmust not be in use by any other entity;\nuse the 'tsrct init uid' command to check if your preferred uid is available",
+      help:
+          "the 25 digit globally unique uid selected for this domain\nmust not be in use by any other entity;\nuse the 'tsrct init uid' command to check if your preferred uid is available",
     );
     argParser.addOption("key-host",
-      mandatory: true,
-      allowedHelp: {
-        "local": "the key is located on the local file system; it must not have passphrase protection",
-        "gcp": "the key is located in gcp cloud kms and the fully qualified location name is available"
-      },
-      help: "the hosted location of the key, whether local or a specific cloud kms such as gcp"
-    );
+        mandatory: true,
+        allowedHelp: {
+          "local":
+              "the key is located on the local file system; it must not have passphrase protection",
+          "gcp":
+              "the key is located in gcp cloud kms and the fully qualified location name is available"
+        },
+        help:
+            "the hosted location of the key, whether local or a specific cloud kms such as gcp");
     argParser.addOption("sig-key-resource",
-      mandatory: true,
-      help: "the actual resource id of the signing key resource; if local, then the file path; if gcp, then the fully qualified gcp resource name including including project, region, keyring, keyname, and key version"
-    );
+        mandatory: true,
+        help:
+            "the actual resource id of the signing key resource; if local, then the file path; if gcp, then the fully qualified gcp resource name including including project, region, keyring, keyname, and key version");
     argParser.addOption("enc-key-resource",
-      mandatory: true,
-      help: "the actual resource id of the encryption key resource; if local, then the file path; if gcp, then the fully qualified gcp resource name including project, region, keyring, keyname, and key version"
-    );
+        mandatory: true,
+        help:
+            "the actual resource id of the encryption key resource; if local, then the file path; if gcp, then the fully qualified gcp resource name including project, region, keyring, keyname, and key version");
   }
 
   @override
@@ -53,16 +61,18 @@ class DomainInitCommand extends Command {
 
     late KeyActionsProvider keyActionsProvider;
 
-    switch(location) {
-      case "gcp": {
-        keyActionsProvider = GCPKeyActionsProvider();
-        await (keyActionsProvider as GCPKeyActionsProvider).init();
-        break;
-      }
-      case "local": {
-        keyActionsProvider = LocalKeyActionsProvider();
-        break;
-      }
+    switch (location) {
+      case "gcp":
+        {
+          keyActionsProvider = GCPKeyActionsProvider();
+          await (keyActionsProvider as GCPKeyActionsProvider).init();
+          break;
+        }
+      case "local":
+        {
+          keyActionsProvider = LocalKeyActionsProvider();
+          break;
+        }
     }
 
     await handleInit(keyActionsProvider, argResults!);
@@ -71,42 +81,42 @@ class DomainInitCommand extends Command {
   }
 
   Future<void> handleInit(
-      KeyActionsProvider keyActionsProvider,
-      ArgResults argResults,
-      ) async {
-
+    KeyActionsProvider keyActionsProvider,
+    ArgResults argResults,
+  ) async {
     String uid = argResults["uid"];
     String keySetId = argResults["key-set-id"];
     String sigResourceName = argResults["sig-key-resource"];
     String encResourceName = argResults["enc-key-resource"];
 
-    Map<String,dynamic> jwks = await keyActionsProvider.getJWKS(keySetId, sigResourceName, encResourceName);
+    Map<String, dynamic> jwks = await keyActionsProvider.getJWKS(
+        keySetId, sigResourceName, encResourceName);
     print(">> >> jwks: $jwks");
     String jwksBodyBase64 = convertJsonToBase64(jwks);
 
     TsrctDoc synTdoc = await buildSynTdoc(
-        keyActionsProvider,
-        sigResourceName,
-        argResults,
-        jwksBodyBase64,
+      keyActionsProvider,
+      sigResourceName,
+      argResults,
+      jwksBodyBase64,
     );
 
     ApiResponse ackResponse = await sendSynData(synTdoc);
 
     try {
-      if(ackResponse.ok) {
-        Map<String,dynamic> data = ackResponse.jsonResponse!["data"];
+      if (ackResponse.ok) {
+        Map<String, dynamic> data = ackResponse.jsonResponse!["data"];
         String ackTdoc = data["ack"];
         print(">> >> ackTdoc: \n$ackTdoc");
 
         TsrctDoc? ackTsrctDoc = await processAckTdoc(
-            argResults,
-            jwksBodyBase64,
-            synTdoc,
-            ackTdoc,
+          argResults,
+          jwksBodyBase64,
+          synTdoc,
+          ackTdoc,
         );
 
-        if(ackTsrctDoc == null) {
+        if (ackTsrctDoc == null) {
           throw Exception(">> >> ACK VALIDATION ERROR!!");
         }
 
@@ -124,52 +134,48 @@ class DomainInitCommand extends Command {
           regTsrctdoc,
         );
 
-        Map<String,dynamic> registrationJson = {
+        Map<String, dynamic> registrationJson = {
           "reg": regTsrctdoc.generateRawTdoc(),
           "key": regKeyTsrctDoc.generateRawTdoc(),
         };
 
-        ApiResponse regResponse =
-            await tsrctApi.postJson(
-              "/org/reg",
-              registrationJson,
-            );
+        ApiResponse regResponse = await tsrctApi.postJson(
+          "/org/reg",
+          registrationJson,
+        );
 
-        if(regResponse.ok) {
+        if (regResponse.ok) {
           //todo: save the ack and reg and key payloads locally
+        } else {
+          throw Exception(
+              "Error with registration: ${regResponse.jsonResponse}");
         }
-        else {
-          throw Exception("Error with registration: ${regResponse.jsonResponse}");
-        }
-
-      }
-      else {
+      } else {
         throw Exception("Error with ACK response: ${ackResponse.jsonResponse}");
       }
-    }
-    finally {
+    } finally {
       keyActionsProvider.close();
     }
   }
 
   Future<TsrctDoc> buildSynTdoc(
-      KeyActionsProvider keyActionsProvider,
-      String sigResourceName,
-      ArgResults argResults,
-      String jwksBodyBase64,
-      ) async {
-
+    KeyActionsProvider keyActionsProvider,
+    String sigResourceName,
+    ArgResults argResults,
+    String jwksBodyBase64,
+  ) async {
     String dom = argResults["dom"];
     String keySetId = argResults["key-set-id"];
     String uid = argResults["uid"];
 
     Uint8List bodyBase64Bytes = Uint8List.fromList(utf8.encode(jwksBodyBase64));
-    String sig = await keyActionsProvider.sign(sigResourceName, bodyBase64Bytes);
+    String sig =
+        await keyActionsProvider.sign(sigResourceName, bodyBase64Bytes);
     String sha = TsrctCommonOps.sha256Digest(bodyBase64Bytes);
 
     String cid = TsrctCommonOps.getNowAsKeyIdDateFormat();
 
-    Map<String,dynamic> synHeader = {
+    Map<String, dynamic> synHeader = {
       "alg": "RS256",
       "cls": "org",
       "dom": dom,
@@ -204,26 +210,24 @@ class DomainInitCommand extends Command {
   }
 
   Future<TsrctDoc?> processAckTdoc(
-      ArgResults argResults,
-      String jwksBodyBase64,
-      TsrctDoc synTdoc,
-      String ackTdocString,
-      ) async {
+    ArgResults argResults,
+    String jwksBodyBase64,
+    TsrctDoc synTdoc,
+    String ackTdocString,
+  ) async {
     String uid = argResults["uid"];
     // store ack locally
     Directory tsrctDir = await tsrctDirectory;
 
-    File ackFile =
-      await File("${tsrctDir.path}/${uid}.ack.tdoc")
-          .writeAsString(ackTdocString,
-            encoding: utf8,
-            flush: true,
-            mode: FileMode.writeOnly
-      );
+    File ackFile = await File("${tsrctDir.path}/${uid}.ack.tdoc").writeAsString(
+        ackTdocString,
+        encoding: utf8,
+        flush: true,
+        mode: FileMode.writeOnly);
 
     // validate tdoc for correctness
     TsrctDoc ackTdoc = TsrctDoc.parse(ackTdocString);
-    Map<String,dynamic> ackBodyJson = parseBase64ToJson(ackTdoc.bodyBase64);
+    Map<String, dynamic> ackBodyJson = parseBase64ToJson(ackTdoc.bodyBase64);
     print(">> >> ack body: \n$ackBodyJson");
 
     // todo: validate ack tdoc received
@@ -233,24 +237,22 @@ class DomainInitCommand extends Command {
     // TsrctCommonOps.validateTdoc(ackTdoc, ;
 
     return ackTdoc;
-
   }
 
   /// build the registration tdoc that will be sent in the registration request
   Future<TsrctDoc> _buildRegTdoc(
-      ArgResults argResults,
-      KeyActionsProvider keyActionsProvider,
-      TsrctDoc ack,
-      ) async {
-
-    Map<String,dynamic> ackHeader = ack.header;
+    ArgResults argResults,
+    KeyActionsProvider keyActionsProvider,
+    TsrctDoc ack,
+  ) async {
+    Map<String, dynamic> ackHeader = ack.header;
 
     String sigResourceName = argResults["sig-key-resource"];
     String keySetId = argResults["key-set-id"];
     String uid = argResults["uid"];
     String dom = argResults["dom"];
 
-    Map<String,dynamic> ackJsonBody = parseBase64ToJson(ack.bodyBase64);
+    Map<String, dynamic> ackJsonBody = parseBase64ToJson(ack.bodyBase64);
     String dns = ackJsonBody["dns"]["val"];
 
     List<dynamic> refArray = [
@@ -262,7 +264,7 @@ class DomainInitCommand extends Command {
       },
     ];
 
-    Map<String,dynamic> regBody = {
+    Map<String, dynamic> regBody = {
       "dom": dom,
       "uid": uid,
       "key": "$uid/$keySetId",
@@ -271,10 +273,11 @@ class DomainInitCommand extends Command {
 
     String regBodyBase64 = convertJsonToBase64(regBody);
     Uint8List bodyBase64Bytes = Uint8List.fromList(utf8.encode(regBodyBase64));
-    String sig = await keyActionsProvider.sign(sigResourceName, bodyBase64Bytes);
+    String sig =
+        await keyActionsProvider.sign(sigResourceName, bodyBase64Bytes);
     String sha = TsrctCommonOps.sha256Digest(bodyBase64Bytes);
 
-    Map<String,dynamic> regHeader = {
+    Map<String, dynamic> regHeader = {
       "alg": "RS256",
       "cls": "org",
       "typ": "reg",
@@ -301,28 +304,22 @@ class DomainInitCommand extends Command {
     regTsrctDoc.hbsBase64 = signature;
 
     return regTsrctDoc;
-
   }
 
   /// build the tdoc that will be used for the key registration
   /// in the reg payload
   Future<TsrctDoc> _buildRegKeyTdoc(
-      ArgResults argResults,
-      KeyActionsProvider keyActionsProvider,
-      String jwksBodyBase64,
-      TsrctDoc ack,
-      TsrctDoc reg,
-      ) async {
-
-    Map<String,dynamic> ackHeader = ack.header;
+    ArgResults argResults,
+    KeyActionsProvider keyActionsProvider,
+    String jwksBodyBase64,
+    TsrctDoc ack,
+    TsrctDoc reg,
+  ) async {
+    Map<String, dynamic> ackHeader = ack.header;
 
     String sigResourceName = argResults["sig-key-resource"];
     String keySetId = argResults["key-set-id"];
     String uid = argResults["uid"];
-
-    Uint8List bodyBase64Bytes = Uint8List.fromList(utf8.encode(jwksBodyBase64));
-    String sig = await keyActionsProvider.sign(sigResourceName, bodyBase64Bytes);
-    String sha = TsrctCommonOps.sha256Digest(bodyBase64Bytes);
 
     List<dynamic> refArray = [
       {
@@ -333,34 +330,27 @@ class DomainInitCommand extends Command {
       },
     ];
 
-    Map<String,dynamic> jwksHeader = {
-      "alg": "RS256",
+    Map<String, dynamic> jwksHeader = {
       "cls": "key",
       "typ": "reg",
-      "its": TsrctCommonOps.getNowAsTdocDateFormat(),
       "key": "$uid/$keySetId",
-      "len": jwksBodyBase64.length,
       "src": uid,
       "uid": "$uid/$keySetId",
-      "sig": sig,
-      "slf": sig,
-      "sha": sha,
       "cid": ackHeader["cid"],
       "seq": 3,
       "ref": refArray,
       "dsc": "tsrct://org/reg/key",
-      "nce": TsrctCommonOps.getNonce(),
     };
 
-    TsrctDoc keyTdoc = TsrctDoc.init(jwksHeader, jwksBodyBase64);
-    Uint8List signable = keyTdoc.generateSignableBytes();
-    String signature = await keyActionsProvider.sign(sigResourceName, signable);
-    keyTdoc.hbsBase64 = signature;
+    TsrctDoc keyTdoc =
+      await TsrctCommonOps.buildSignedTsrctDoc(
+          jwksHeader,
+          true,
+          jwksBodyBase64,
+          sigResourceName,
+          keyActionsProvider,
+      );
 
     return keyTdoc;
   }
-
-  // Future<ApiResponse> sendRegData(TsrctDoc ack) {
-  //   return
-  // }
 }
