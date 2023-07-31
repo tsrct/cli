@@ -3,9 +3,10 @@ import 'dart:typed_data';
 
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:tsrct_cli/utils.dart';
 import 'package:tsrct_dart_lib/tsrct_dart_lib.dart';
 
-class DomainDnsCommand extends Command {
+class DomainDnsCommand extends TsrctCommand {
   @override
   String get description =>
       "provide dns settings to allow domain initialization and registry with tsrct";
@@ -47,7 +48,7 @@ class DomainDnsCommand extends Command {
   }
 
   @override
-  Future<void> run() async {
+  Future<void> runTsrctCommand() async {
     String location = argResults?["key-host"];
     print('>> >> key-host: $location');
 

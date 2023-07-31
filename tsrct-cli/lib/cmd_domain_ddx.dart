@@ -4,10 +4,11 @@ import 'dart:typed_data';
 
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:tsrct_cli/utils.dart';
 import 'package:tsrct_dart_lib/tsrct_dart_lib.dart';
 import 'package:http/http.dart' as http;
 
-class DomainDdxCommand extends Command {
+class DomainDdxCommand extends TsrctCommand {
   @override
   String get description =>
       "create a ddx entry for a target user or organization";
@@ -65,7 +66,7 @@ class DomainDdxCommand extends Command {
   }
 
   @override
-  Future<void> run() async {
+  Future<void> runTsrctCommand() async {
     String location = argResults?["key-host"];
     print('>> >> key-host: $location');
 

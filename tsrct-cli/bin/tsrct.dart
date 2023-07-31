@@ -13,9 +13,10 @@ import 'package:tsrct_cli/utils.dart';
 import 'package:tsrct_dart_lib/tsrct_dart_lib.dart';
 
 void main(List<String> arguments) {
-  tsrctApi = TsrctApi(String.fromEnvironment("API_ENDPOINT"));
-  print("api endpoint is: ${tsrctApi.apiEndpoint}");
+  // tsrctApi = TsrctApi(String.fromEnvironment("API_ENDPOINT"));
+  // print("api endpoint is: ${tsrctApi.apiEndpoint}");
   var runner = CommandRunner("tsrct", "command line tool for tsrct")
+    ..argParser.addOption("api", defaultsTo: "https://api.tsrct.io")
     ..addCommand(DomainCommand())
     ..addCommand(UidCommand())
     ..addCommand(TdocCommand())
@@ -61,7 +62,7 @@ class TdocCommand extends Command {
   String get name => "tdoc";
 
   TdocCommand() {
-    addSubcommand(TdocCreateCommand());
+    addSubcommand(TdocCreateDocCommand());
   }
 }
 

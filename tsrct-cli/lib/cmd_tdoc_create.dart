@@ -8,7 +8,7 @@ import 'package:args/command_runner.dart';
 import 'package:tsrct_cli/utils.dart';
 import 'package:tsrct_dart_lib/tsrct_dart_lib.dart';
 
-class TdocCreateCommand extends Command {
+class TdocCreateDocCommand extends TsrctCommand {
   @override
   String get description =>
       "create tdoc of cls=doc to embed text, images, etc.";
@@ -16,7 +16,7 @@ class TdocCreateCommand extends Command {
   @override
   String get name => "doc";
 
-  TdocCreateCommand() {
+  TdocCreateDocCommand() {
     argParser
       ..addOption("uid",
           help:
@@ -92,8 +92,8 @@ class TdocCreateCommand extends Command {
   }
 
   @override
-  Future<void> run() async {
-    print(">> >> running command with args: ${argResults?.arguments}");
+  Future<void> runTsrctCommand() async {
+    print(">> >> running command with options: ${argResults?.options}");
     String location = argResults?["key-host"];
     print('>> >> key-host: $location');
 
@@ -127,7 +127,7 @@ class TdocCreateCommand extends Command {
     }
 
     String uid = "";
-    if(argResults.arguments.contains("uid")) {
+    if(argResults.options.contains("uid")) {
       uid = "$src.${argResults['uid']}";
     }
     else {
@@ -135,7 +135,7 @@ class TdocCreateCommand extends Command {
     }
 
     String bodyBase64 = "";
-    if(argResults.arguments.contains("text")) {
+    if(argResults.options.contains("text")) {
       bodyBase64 = convertStringToBase64(argResults["text"]);
     }
     else {

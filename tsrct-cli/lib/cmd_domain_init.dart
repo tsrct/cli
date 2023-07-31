@@ -8,7 +8,7 @@ import 'package:args/command_runner.dart';
 import 'package:tsrct_cli/utils.dart';
 import 'package:tsrct_dart_lib/tsrct_dart_lib.dart';
 
-class DomainInitCommand extends Command {
+class DomainInitCommand extends TsrctCommand {
   @override
   String get description =>
       "initialize the domain for an org, which will essentially provision the org onto tsrct";
@@ -55,7 +55,7 @@ class DomainInitCommand extends Command {
   }
 
   @override
-  Future<void> run() async {
+  Future<void> runTsrctCommand() async {
     String location = argResults?["key-host"];
     print('>> >> key-host: $location');
 

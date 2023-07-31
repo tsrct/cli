@@ -1,7 +1,8 @@
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:tsrct_cli/utils.dart';
 
-class KeyInitCommand extends Command {
+class KeyInitCommand extends TsrctCommand {
   @override
   String get description =>
       "add a new key for the organization after initialization has already occurred";
@@ -28,7 +29,7 @@ class KeyInitCommand extends Command {
   }
 
   @override
-  Future<void> run() {
+  Future<void> runTsrctCommand() {
     String location = argResults?["key-host"];
     print('>> >> key-host: $location');
 
