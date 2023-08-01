@@ -380,10 +380,12 @@ packages:
   tsrct_dart_lib:
     dependency: "direct main"
     description:
-      path: "/Users/saurabh/code/github/tsrct/tsrct-dart-lib"
-      relative: false
-    source: path
-    version: "1.0.2"
+      path: "."
+      ref: HEAD
+      resolved-ref: "7e884dc266f3543295cab777b53ad97b9ee86c0e"
+      url: "git@github.com:tsrct/tsrct-dart-lib.git"
+    source: git
+    version: "1.0.3"
   typed_data:
     dependency: transitive
     description:
