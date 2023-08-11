@@ -83,6 +83,7 @@ class TdocCreateDocCommand extends TsrctCommand {
     argParser.addOption("cty", mandatory: false, help: "required with typ=blob or data");
     argParser.addOption("dsc", mandatory: false);
     argParser.addOption("exp", mandatory: false);
+    argParser.addOption("nbf", mandatory: false);
     argParser.addOption("ref", mandatory: false);
     argParser.addOption("rid", mandatory: false);
     argParser.addOption("scm", mandatory: false);
@@ -149,14 +150,9 @@ class TdocCreateDocCommand extends TsrctCommand {
       "cty": cty,
       "uid": uid,
     };
-    List<String> items = ["key", "src", "tgt", "cid", "dsc", "exp", "rid", "scm", "seq", "sub"];
-    for (String item in items) {
-      _insertHeaderIfPresent(item, argResults, header);
-    }
-    print('>> >> options: ${argResults.options}');
-    if(argResults.options.contains("ref")) {
-      await _insertRefs(argResults["ref"], header);
-    }
+
+    List<String> items = ["key", "src", "tgt", "cid", "dsc", "exp", "nbf", "rid", "scm", "seq", "sub"];
+    await populateHeader(header, argResults, items);
 
     String sigResourceName = argResults["sig-key-resource"];
     TsrctDoc tsrctDoc =
@@ -178,21 +174,6 @@ class TdocCreateDocCommand extends TsrctCommand {
       if(argResults.options.contains("output")) {
         _writeTdocToFile(tsrctDoc, argResults["output"]);
       }
-    }
-  }
-  
-  Future<void> _insertRefs(String refs, Map<String,dynamic> header) async {
-    ApiResponse refResponse = await tsrctApi.getRefs(refs);
-    if(refResponse.ok) {
-      Map<String,dynamic> data = refResponse.jsonResponse!;
-      header["ref"] = data["data"];
-    }
-  }
-
-  void _insertHeaderIfPresent(String item, ArgResults argResults, Map<String,dynamic> header) {
-    if(argResults.options.contains(item)) {
-      print('>> >> adding item[$item]: ${argResults[item]}');
-      header[item] = argResults[item];
     }
   }
 

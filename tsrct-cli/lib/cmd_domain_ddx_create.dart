@@ -8,7 +8,7 @@ import 'package:tsrct_cli/utils.dart';
 import 'package:tsrct_dart_lib/tsrct_dart_lib.dart';
 import 'package:http/http.dart' as http;
 
-class DomainDdxCommand extends TsrctCommand {
+class DomainDdxCreateCommand extends TsrctCommand {
   @override
   String get description =>
       "create a ddx entry for a target user or organization";
@@ -16,7 +16,7 @@ class DomainDdxCommand extends TsrctCommand {
   @override
   String get name => "ddx-create";
 
-  DomainDdxCommand() {
+  DomainDdxCreateCommand() {
     argParser.addOption(
       "uid",
       mandatory: true,
@@ -33,6 +33,11 @@ class DomainDdxCommand extends TsrctCommand {
       help: "the 25 digit uid of the source org",
     );
     argParser.addOption(
+      "dom",
+      mandatory: true,
+      help: "the domain of the org that is registered against the src"
+    );
+    argParser.addOption(
       "tgt",
       mandatory: true,
       help: "the 25 digit uid of the target usr or org",
@@ -41,7 +46,17 @@ class DomainDdxCommand extends TsrctCommand {
       "key",
       mandatory: true,
       help:
-          "the name of the key set registered with tsrct that will be used to sign the payloads",
+          "the name of the key set registered with tsrct that will be used to sign the payloads; this is the full key id",
+    );
+    argParser.addOption(
+      "acl",
+      mandatory: false,
+      help: "the access control of the ddx, either acl_pub or acl_pri",
+      allowedHelp: {
+        "acl_pub": "ddx is public and can be viewed and validated by anyone",
+        "acl_pri": "ddx is private and can be viewed and validate only by the src or tgt",
+      },
+      defaultsTo: "acl_pub",
     );
     argParser.addOption("key-host",
         mandatory: true,
@@ -63,6 +78,15 @@ class DomainDdxCommand extends TsrctCommand {
     argParser.addOption("body",
         mandatory: true,
         help: "file name of the content to include in the ddx; this body must be a json document that conform to the schema indicated; NOTE: tsrct will not check for schema validation");
+
+    argParser.addOption("cid", mandatory: false);
+    argParser.addOption("dsc", mandatory: false);
+    argParser.addOption("exp", mandatory: false);
+    argParser.addOption("nbf", mandatory: false);
+    argParser.addOption("ref", mandatory: false);
+    argParser.addOption("rid", mandatory: false);
+    argParser.addOption("seq", mandatory: false);
+    argParser.addOption("sub", mandatory: false);
   }
 
   @override
@@ -90,29 +114,28 @@ class DomainDdxCommand extends TsrctCommand {
     KeyActionsProvider keyActionsProvider,
     ArgResults argResults,
   ) async {
-    String rid = argResults["rid"];
     String src = argResults["src"];
-    String tgt = argResults["tgt"];
+    String dom = argResults["dom"];
     String scm = argResults["scm"];
-    String key = argResults["key"];
-    String sigResourceName = argResults["sig-resource-name"];
+    String acl = argResults["acl"];
+    String sigResourceName = argResults["sig-key-resource"];
 
     String url = argResults["url"];
-    String ddxApiEndpoint = "$url/ddx/create";
+    String ddxApiEndpoint = "$url/domain/$dom/ddx/create";
 
     Uint8List fileBytes = File(argResults["body"]).readAsBytesSync();
     String fileBase64 = base64UrlEncode(fileBytes);
 
     Map<String,dynamic> header = {
       "cls": "ddx",
-      "typ": "req",
-      "key": "$src/$key",
-      "src": src,
-      "tgt": tgt,
-      "scm": scm,
-      "rid": rid,
+      "typ": "grant",
+      "cty": "application/json",
       "uid": TsrctCommonOps.generateUid(src),
+      "nbf": TsrctCommonOps.getNowAsTdocDateFormat(),
     };
+
+    List<String> items = ["key", "src", "tgt", "acl", "cid", "dsc", "exp", "nbf", "rid", "scm", "seq", "sub"];
+    await populateHeader(header, argResults, items);
 
     TsrctDoc ddxReqTdoc =
       await TsrctCommonOps.buildSignedTsrctDoc(

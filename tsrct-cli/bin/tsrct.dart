@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
-import 'package:tsrct_cli/cmd_domain_ddx.dart';
+import 'package:tsrct_cli/cmd_domain_ddx_create.dart';
 import 'package:tsrct_cli/cmd_domain_dns.dart';
 import 'package:tsrct_cli/cmd_domain_init.dart';
 import 'package:tsrct_cli/cmd_key_init.dart';
@@ -38,7 +38,7 @@ class DomainCommand extends Command {
   DomainCommand() {
     addSubcommand(DomainDnsCommand());
     addSubcommand(DomainInitCommand());
-    addSubcommand(DomainDdxCommand());
+    addSubcommand(DomainDdxCreateCommand());
   }
 }
 
