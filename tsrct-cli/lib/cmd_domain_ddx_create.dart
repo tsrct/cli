@@ -114,10 +114,9 @@ class DomainDdxCreateCommand extends TsrctCommand {
     KeyActionsProvider keyActionsProvider,
     ArgResults argResults,
   ) async {
+    String uid = argResults["uid"];
     String src = argResults["src"];
     String dom = argResults["dom"];
-    String scm = argResults["scm"];
-    String acl = argResults["acl"];
     String sigResourceName = argResults["sig-key-resource"];
 
     String url = argResults["url"];
@@ -128,13 +127,22 @@ class DomainDdxCreateCommand extends TsrctCommand {
 
     Map<String,dynamic> header = {
       "cls": "ddx",
-      "typ": "grant",
+      "typ": "init",
       "cty": "application/json",
       "uid": TsrctCommonOps.generateUid(src),
       "nbf": TsrctCommonOps.getNowAsTdocDateFormat(),
+      "mtd": {"uid": uid},
     };
 
-    List<String> items = ["key", "src", "tgt", "acl", "cid", "dsc", "exp", "nbf", "rid", "scm", "seq", "sub"];
+    if(argResults["ref"] != null) {
+      ApiResponse refResponse = await tsrctApi.getRefs(argResults["ref"]);
+      Map<String,dynamic> refResponseJson = refResponse.jsonResponse!;
+      if(refResponseJson["status"] == "ok") {
+        header["ref"] = refResponseJson["data"];
+      }
+    }
+
+    List<String> items = [ "acl", "cid", "dom", "dsc", "exp", "key", "rid", "scm", "seq", "src", "sub", "tgt", ];
     await populateHeader(header, argResults, items);
 
     TsrctDoc ddxReqTdoc =
