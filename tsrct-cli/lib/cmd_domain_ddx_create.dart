@@ -58,6 +58,11 @@ class DomainDdxCreateCommand extends TsrctCommand {
       },
       defaultsTo: "acl_pub",
     );
+    argParser.addOption(
+      "sub",
+      mandatory: true,
+      help: "the sub type of the ddx, such as 'tsrct:usr-name' for setting a user's name",
+    );
     argParser.addOption("key-host",
         mandatory: true,
         allowedHelp: {
@@ -86,7 +91,6 @@ class DomainDdxCreateCommand extends TsrctCommand {
     argParser.addOption("ref", mandatory: false);
     argParser.addOption("rid", mandatory: false);
     argParser.addOption("seq", mandatory: false);
-    argParser.addOption("sub", mandatory: false);
   }
 
   @override
