@@ -190,6 +190,7 @@ class DomainInitCommand extends TsrctCommand {
       "cid": "$uid.$cid",
       "seq": 0,
       "dsc": "tsrct://org/syn/$dom",
+      "cty": "application/json",
       "nce": TsrctCommonOps.getNonce(),
     };
 
@@ -293,6 +294,7 @@ class DomainInitCommand extends TsrctCommand {
       "seq": 2,
       "ref": refArray,
       "dsc": "tsrct://org/reg/$uid",
+      "cty": "application/json",
       "nce": TsrctCommonOps.getNonce(),
     };
 
@@ -340,6 +342,7 @@ class DomainInitCommand extends TsrctCommand {
       "seq": 3,
       "ref": refArray,
       "dsc": "tsrct://org/reg/key",
+      "cty": "application/json",
     };
 
     TsrctDoc keyTdoc =
