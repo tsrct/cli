@@ -14,7 +14,7 @@ class TdocCreateDocCommand extends TsrctCommand {
       "create tdoc of cls=doc to embed text, images, etc.";
 
   @override
-  String get name => "doc";
+  String get name => "doc-create";
 
   TdocCreateDocCommand() {
     argParser
@@ -50,7 +50,7 @@ class TdocCreateDocCommand extends TsrctCommand {
       ..addOption(
         "output",
         help:
-            "file to store the output; if not specified, output will be sent to stdout",
+            "file to store the output; if not specified, output will be sent filename of src.uid",
       )
 
       ..addOption(
@@ -173,6 +173,9 @@ class TdocCreateDocCommand extends TsrctCommand {
       print("tsrct doc created successfully: $uid");
       if(argResults.options.contains("output")) {
         _writeTdocToFile(tsrctDoc, argResults["output"]);
+      }
+      else {
+        _writeTdocToFile(tsrctDoc, "$uid.tdoc");
       }
     }
   }
