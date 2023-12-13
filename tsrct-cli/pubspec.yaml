@@ -15,9 +15,9 @@ dev_dependencies:
   test: ^1.21.0
 dependencies:
   args: ^2.4.2
-  googleapis: ^11.2.0
   googleapis_auth: ^1.4.1
   pointycastle: ^3.7.3
   tsrct_dart_lib:
-    git: git@github.com:tsrct/tsrct-dart-lib.git
+    path: /Users/saurabh/code/github/tsrct/tsrct-dart-lib
+#    git: git@github.com:tsrct/tsrct-dart-lib.git
 

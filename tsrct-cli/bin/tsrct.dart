@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
@@ -20,6 +21,7 @@ void main(List<String> arguments) {
     ..addCommand(DomainCommand())
     ..addCommand(UidCommand())
     ..addCommand(TdocCommand())
+    ..addCommand(SwapperCommand())
     ..run(arguments).catchError((error) {
       if (error is! UsageException) throw error;
       print(error);
@@ -75,5 +77,48 @@ class UidCommand extends Command {
 
   UidCommand() {
     addSubcommand(UidAvailableCommand());
+  }
+}
+
+class SwapperCommand extends Command {
+  @override
+  // TODO: implement description
+  String get description => "swap one body for another";
+
+  @override
+  // TODO: implement name
+  String get name => "swap";
+
+  SwapperCommand() {
+    argParser
+      ..addOption("fake")
+      ..addOption("orig");
+  }
+
+  @override
+  Future<void> run() {
+    String fake = argResults!['fake'];
+    String orig = argResults!['orig'];
+
+    Uint8List tdocBytes = File(orig).readAsBytesSync();
+    String tdocString = utf8.decode(tdocBytes);
+    TsrctDoc origTdoc = TsrctDoc.parse(tdocString);
+
+    Uint8List fakeBytes = File(fake).readAsBytesSync();
+    String fakeBase64 = base64UrlEncode(fakeBytes);
+    origTdoc.bodyBase64 = fakeBase64;
+    String fakeTdocBase64 = origTdoc.generateRawTdoc();
+
+    String fakeName = "${orig.substring(0, orig.lastIndexOf("."))}-altered.tdoc";
+    File fakeFile = File(fakeName);
+    fakeFile.writeAsStringSync(
+      fakeTdocBase64,
+      encoding: utf8,
+      flush: true,
+      mode: FileMode.write,
+    );
+    print("wrote modified output: $fakeName");
+
+    return Future(() => null);
   }
 }

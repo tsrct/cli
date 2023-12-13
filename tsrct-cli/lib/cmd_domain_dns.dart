@@ -92,12 +92,12 @@ class DomainDnsCommand extends TsrctCommand {
     Map<String, dynamic> sigKey = key0["use"] == "sig" ? key0 : key1;
     Map<String, dynamic> encKey = key1["use"] == "enc" ? key1 : key0;
 
-    String sigKeyFingerprint = "${sigKey['mod']}:${sigKey['exp']}";
+    String sigKeyFingerprint = "${sigKey['n']}:${sigKey['e']}";
     print('>> >> sigKeyFingerprint: $sigKeyFingerprint');
     Uint8List sigKeyFPBytes =
         Uint8List.fromList(utf8.encode(sigKeyFingerprint));
 
-    String encKeyFingerprint = "${encKey['mod']}:${encKey['exp']}";
+    String encKeyFingerprint = "${encKey['n']}:${encKey['e']}";
     print('>> >> encKeyFingerprint: $encKeyFingerprint');
     Uint8List encKeyFPBytes =
         Uint8List.fromList(utf8.encode(encKeyFingerprint));

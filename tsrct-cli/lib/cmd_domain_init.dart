@@ -105,6 +105,7 @@ class DomainInitCommand extends TsrctCommand {
 
     try {
       if (ackResponse.ok) {
+        print('>> >> ack response: ${ackResponse.jsonResponse}');
         Map<String, dynamic> data = ackResponse.jsonResponse!["data"];
         String ackTdoc = data["ack"];
         print(">> >> ackTdoc: \n$ackTdoc");
@@ -268,7 +269,7 @@ class DomainInitCommand extends TsrctCommand {
     Map<String, dynamic> regBody = {
       "dom": dom,
       "uid": uid,
-      "key": "$uid/$keySetId",
+      "key": "$uid.$keySetId",
       "dns": dns,
     };
 
