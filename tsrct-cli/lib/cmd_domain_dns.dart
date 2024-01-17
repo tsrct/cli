@@ -93,19 +93,21 @@ class DomainDnsCommand extends TsrctCommand {
     Map<String, dynamic> encKey = key1["use"] == "enc" ? key1 : key0;
 
     String sigKeyFingerprint = "${sigKey['n']}:${sigKey['e']}";
-    print('>> >> sigKeyFingerprint: $sigKeyFingerprint');
     Uint8List sigKeyFPBytes =
         Uint8List.fromList(utf8.encode(sigKeyFingerprint));
+    String sigKeyFPBytesSha = TsrctCommonOps.sha256Digest(sigKeyFPBytes);
+    print('>> >> sigKeyFPBytesSha: $sigKeyFPBytesSha');
 
     String encKeyFingerprint = "${encKey['n']}:${encKey['e']}";
-    print('>> >> encKeyFingerprint: $encKeyFingerprint');
     Uint8List encKeyFPBytes =
         Uint8List.fromList(utf8.encode(encKeyFingerprint));
+    String encKeyFPBytesSha = TsrctCommonOps.sha256Digest(encKeyFPBytes);
+    print('>> >> encKeyFPBytesSha: $encKeyFPBytesSha');
 
     String sigKeyFPSignature =
-        await keyActionsProvider.sign(sigResourceName, sigKeyFPBytes);
+        await keyActionsProvider.signDigest(sigResourceName, base64UrlDecode(sigKeyFPBytesSha));
     String encKeyFPSignature =
-        await keyActionsProvider.sign(sigResourceName, encKeyFPBytes);
+        await keyActionsProvider.signDigest(sigResourceName, base64UrlDecode(encKeyFPBytesSha));
 
     String txtRecordValue = "sig:$sigKeyFPSignature.enc:$encKeyFPSignature";
     print(">> >> full signed value is: $txtRecordValue");

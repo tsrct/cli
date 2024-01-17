@@ -80,7 +80,7 @@ class DomainDdxCreateCommand extends TsrctCommand {
     argParser.addOption("scm",
         mandatory: true,
         help: "the fully qualified URI of the json schema location that the body conforms to");
-    argParser.addOption("body",
+    argParser.addOption("ddx-file",
         mandatory: true,
         help: "file name of the content to include in the ddx; this body must be a json document that conform to the schema indicated; NOTE: tsrct will not check for schema validation");
 
@@ -126,12 +126,25 @@ class DomainDdxCreateCommand extends TsrctCommand {
     String url = argResults["url"];
     String ddxApiEndpoint = "$url/domain/$dom/ddx/create";
 
-    Uint8List fileBytes = File(argResults["body"]).readAsBytesSync();
-    String fileBase64 = base64UrlEncode(fileBytes);
+    String? dataFile = argResults["ddx-file"];
+    String? fileBase64;
+    if (dataFile != null) {
+      Uint8List fileBytes = File(dataFile).readAsBytesSync();
+      fileBase64 = base64UrlEncode(fileBytes);
+    }
+
+    if(fileBase64 == null) {
+      print(">> >> >> ERROR: invalid file encoding; document cannot be built << << <<");
+      print("Exiting now...");
+      return;
+    }
+    Map<String,dynamic> ddxJson = parseBase64ToJson(fileBase64);
+    String typ = ddxJson["spec"]["category"];
 
     Map<String,dynamic> header = {
       "cls": "ddx",
-      "typ": "init",
+      "typ": typ,
+      "act": "init",
       "cty": "application/json",
       "uid": TsrctCommonOps.generateUid(src),
       "nbf": TsrctCommonOps.getNowAsTdocDateFormat(),

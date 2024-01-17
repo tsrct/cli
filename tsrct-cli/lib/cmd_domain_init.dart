@@ -84,7 +84,6 @@ class DomainInitCommand extends TsrctCommand {
     KeyActionsProvider keyActionsProvider,
     ArgResults argResults,
   ) async {
-    String uid = argResults["uid"];
     String keySetId = argResults["key-set-id"];
     String sigResourceName = argResults["sig-key-resource"];
     String encResourceName = argResults["enc-key-resource"];
@@ -170,9 +169,9 @@ class DomainInitCommand extends TsrctCommand {
     String uid = argResults["uid"];
 
     Uint8List bodyBase64Bytes = Uint8List.fromList(utf8.encode(jwksBodyBase64));
-    String sig =
-        await keyActionsProvider.sign(sigResourceName, bodyBase64Bytes);
     String sha = TsrctCommonOps.sha256Digest(bodyBase64Bytes);
+    String sig =
+      await keyActionsProvider.signDigest(sigResourceName, base64UrlDecode(sha));
 
     String cid = TsrctCommonOps.getNowAsKeyIdDateFormat();
 
@@ -197,8 +196,9 @@ class DomainInitCommand extends TsrctCommand {
 
     TsrctDoc synTdoc = TsrctDoc.init(synHeader, jwksBodyBase64);
     Uint8List signable = synTdoc.generateSignableBytes();
+    String signableSha = TsrctCommonOps.sha256Digest(signable);
 
-    String signature = await keyActionsProvider.sign(sigResourceName, signable);
+    String signature = await keyActionsProvider.signDigest(sigResourceName, base64UrlDecode(signableSha));
     synTdoc.hbsBase64 = signature;
     return synTdoc;
   }
@@ -275,9 +275,9 @@ class DomainInitCommand extends TsrctCommand {
 
     String regBodyBase64 = convertJsonToBase64(regBody);
     Uint8List bodyBase64Bytes = Uint8List.fromList(utf8.encode(regBodyBase64));
-    String sig =
-        await keyActionsProvider.sign(sigResourceName, bodyBase64Bytes);
     String sha = TsrctCommonOps.sha256Digest(bodyBase64Bytes);
+    String sig =
+        await keyActionsProvider.signDigest(sigResourceName, base64UrlDecode(sha));
 
     Map<String, dynamic> regHeader = {
       "alg": "RS256",
@@ -302,7 +302,9 @@ class DomainInitCommand extends TsrctCommand {
     TsrctDoc regTsrctDoc = TsrctDoc.init(regHeader, regBodyBase64);
 
     Uint8List signable = regTsrctDoc.generateSignableBytes();
-    String signature = await keyActionsProvider.sign(sigResourceName, signable);
+    String signableSha = TsrctCommonOps.sha256Digest(signable);
+
+    String signature = await keyActionsProvider.signDigest(sigResourceName, base64UrlDecode(signableSha));
 
     regTsrctDoc.hbsBase64 = signature;
 
