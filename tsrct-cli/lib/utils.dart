@@ -47,7 +47,7 @@ abstract class TsrctCommand extends Command {
   Future<void> run() async {
     print('api endpoint: ${globalResults!["api"]}');
     tsrctApi = TsrctApi(globalResults!["api"]);
-    runTsrctCommand();
+    await runTsrctCommand();
   }
 
   Future<void> runTsrctCommand();

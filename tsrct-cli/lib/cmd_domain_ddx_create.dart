@@ -59,6 +59,16 @@ class DomainDdxCreateCommand extends TsrctCommand {
       defaultsTo: "acl_pub",
     );
     argParser.addOption(
+      "lst",
+      mandatory: false,
+      help: "make item listable if true, not listable if false; default is false (recommended)",
+      allowedHelp: {
+        "true": "if true, then if acl=acl_pub, the item is listable as an output of the org",
+        "false": "if false, then regardless of acl, the item is not listable as an output of the org",
+      },
+      defaultsTo: "false",
+    );
+    argParser.addOption(
       "sub",
       mandatory: true,
       help: "the sub type of the ddx, such as 'tsrct:usr-name' for setting a user's name",
@@ -110,11 +120,9 @@ class DomainDdxCreateCommand extends TsrctCommand {
     }
 
     await handleDdx(keyActionsProvider, argResults!);
-
-    return Future(() => null);
   }
 
-  Future<void> handleDdx(
+  Future<void> handleDdx (
     KeyActionsProvider keyActionsProvider,
     ArgResults argResults,
   ) async {
@@ -161,6 +169,12 @@ class DomainDdxCreateCommand extends TsrctCommand {
 
     List<String> items = [ "acl", "cid", "dom", "dsc", "exp", "key", "rid", "scm", "seq", "src", "sub", "tgt", ];
     await populateHeader(header, argResults, items);
+    if(argResults["lst"] != null) {
+      header["lst"] = "true" == argResults["lst"].toString().toLowerCase();
+    }
+    else {
+      header["lst"] = false;
+    }
 
     TsrctDoc ddxReqTdoc =
       await TsrctCommonOps.buildSignedTsrctDoc(
@@ -179,6 +193,5 @@ class DomainDdxCreateCommand extends TsrctCommand {
     Map<String,dynamic> responseMap = json.decode(response.body);
     print('>> >> ddx response: $responseMap');
 
-    return Future(() => null);
   }
 }

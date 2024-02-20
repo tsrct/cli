@@ -77,6 +77,26 @@ class TdocCreateDocCommand extends TsrctCommand {
       mandatory: true,
       help: "the 25 digit uid of the source org",
     );
+    argParser.addOption(
+      "acl",
+      mandatory: false,
+      help: "the access control of the ddx, either acl_pub or acl_pri",
+      allowedHelp: {
+        "acl_pub": "ddx is public and can be viewed and validated by anyone",
+        "acl_pri": "ddx is private and can be viewed and validate only by the src or tgt",
+      },
+      defaultsTo: "acl_pub",
+    );
+    argParser.addOption(
+      "lst",
+      mandatory: false,
+      help: "make item listable if true, not listable if false; default is false (recommended)",
+      allowedHelp: {
+        "true": "if true, then if acl=acl_pub, the item is listable as an output of the org",
+        "false": "if false, then regardless of acl, the item is not listable as an output of the org",
+      },
+      defaultsTo: "false",
+    );
 
     argParser.addOption("tgt", mandatory: false);
     argParser.addOption("cid", mandatory: false);
@@ -151,8 +171,14 @@ class TdocCreateDocCommand extends TsrctCommand {
       "uid": uid,
     };
 
-    List<String> items = ["key", "src", "tgt", "cid", "dsc", "exp", "nbf", "rid", "scm", "seq", "sub"];
+    List<String> items = ["acl", "key", "src", "tgt", "cid", "dsc", "exp", "nbf", "rid", "scm", "seq", "sub"];
     await populateHeader(header, argResults, items);
+    if(argResults["lst"] != null) {
+      header["lst"] = "true" == argResults["lst"].toString().toLowerCase();
+    }
+    else {
+      header["lst"] = false;
+    }
 
     String sigResourceName = argResults["sig-key-resource"];
     TsrctDoc tsrctDoc =
