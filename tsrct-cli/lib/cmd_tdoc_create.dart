@@ -179,6 +179,10 @@ class TdocCreateDocCommand extends TsrctCommand {
     else {
       header["lst"] = false;
     }
+    if(argResults["tgt"] != null) {
+      header["acl"] = "acl_pri";
+      header["lst"] = false;
+    }
 
     String sigResourceName = argResults["sig-key-resource"];
     TsrctDoc tsrctDoc =
