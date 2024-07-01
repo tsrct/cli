@@ -2,25 +2,26 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:tsrct_cli/cmd_domain_ddx_create.dart';
 import 'package:tsrct_cli/cmd_domain_dns.dart';
 import 'package:tsrct_cli/cmd_domain_init.dart';
+import 'package:tsrct_cli/cmd_download.dart';
 import 'package:tsrct_cli/cmd_key_init.dart';
+import 'package:tsrct_cli/cmd_sha_lookup.dart';
+import 'package:tsrct_cli/cmd_sha_publish.dart';
 import 'package:tsrct_cli/cmd_tdoc_create.dart';
 import 'package:tsrct_cli/cmd_uid_available.dart';
-import 'package:tsrct_cli/utils.dart';
 import 'package:tsrct_dart_lib/tsrct_dart_lib.dart';
 
 void main(List<String> arguments) {
-  // tsrctApi = TsrctApi(String.fromEnvironment("API_ENDPOINT"));
-  // print("api endpoint is: ${tsrctApi.apiEndpoint}");
-  var runner = CommandRunner("tsrct", "command line tool for tsrct")
+  CommandRunner("tsrct", "command line tool for tsrct")
     ..argParser.addOption("api", defaultsTo: "https://api.tsrct.io")
     ..addCommand(DomainCommand())
     ..addCommand(UidCommand())
     ..addCommand(TdocCommand())
+    ..addCommand(DownloadCommand())
+    ..addCommand(ShaCommand())
     ..addCommand(SwapperCommand())
     ..run(arguments).catchError((error) {
       if (error is! UsageException) throw error;
@@ -53,6 +54,19 @@ class KeyCommand extends Command {
 
   KeyCommand() {
     addSubcommand(KeyInitCommand());
+  }
+}
+
+class ShaCommand extends Command {
+  @override
+  String get description => "lookup or publish to sha registry";
+
+  @override
+  String get name => "sha";
+
+  ShaCommand() {
+    addSubcommand(ShaLookupCommand());
+    addSubcommand(ShaPublishCommand());
   }
 }
 
@@ -109,7 +123,8 @@ class SwapperCommand extends Command {
     origTdoc.bodyBase64 = fakeBase64;
     String fakeTdocBase64 = origTdoc.generateRawTdoc();
 
-    String fakeName = "${orig.substring(0, orig.lastIndexOf("."))}-altered.tdoc";
+    String fakeName =
+        "${orig.substring(0, orig.lastIndexOf("."))}-altered.tdoc";
     File fakeFile = File(fakeName);
     fakeFile.writeAsStringSync(
       fakeTdocBase64,

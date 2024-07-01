@@ -1,5 +1,4 @@
 import 'package:args/args.dart';
-import 'package:args/command_runner.dart';
 import 'package:tsrct_cli/utils.dart';
 
 class KeyInitCommand extends TsrctCommand {
@@ -29,7 +28,7 @@ class KeyInitCommand extends TsrctCommand {
   }
 
   @override
-  Future<void> runTsrctCommand() {
+  Future<void> runTsrctCommand() async {
     String location = argResults?["key-host"];
     print('>> >> key-host: $location');
 
@@ -44,8 +43,6 @@ class KeyInitCommand extends TsrctCommand {
           break;
         }
     }
-
-    return Future(() => null);
   }
 
   void handleLocal(ArgResults? argResults) {}
